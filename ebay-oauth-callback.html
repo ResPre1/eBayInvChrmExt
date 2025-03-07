@@ -5,65 +5,13 @@
     <title>eBay OAuth Callback</title>
   </head>
   <body>
+    <h2>Redirecting…</h2>
+
     <script>
-      // Grab the code from the query string
-      const urlParams = new URLSearchParams(window.location.search);
-      const code = urlParams.get("code");
-
-      if (!code) {
-        document.body.innerHTML = "No code parameter found in URL.";
-      } else {
-        document.body.innerHTML = "Received code: " + code;
-
-        // Next: exchange the code for an access token.
-        // WARNING: Exposes client secret in front-end code.
-        //   Safe for sandbox or quick tests, but not recommended for production!
-        const clientId = "ReesePre-Inventor-SBX-2dec84694-ed993bb9";
-        const clientSecret = "SBX-dec84694d94c-5729-48f1-a01e-dc12";
-        // Make sure this matches your sandbox app's secret.
-
-        const tokenEndpoint =
-          "https://api.sandbox.ebay.com/identity/v1/oauth2/token";
-
-        // Must match EXACTLY what's in the dev portal:
-        // If you used the direct URL approach (rather than RuName),
-        // you pass the same full URL, or you pass the RuName if you set up RuName style.
-        const redirectUri =
-          "https://raw.githubusercontent.com/ResPre1/eBayInvChrmExt/refs/heads/main/ebay-oauth-callback.html";
-
-        // Prepare POST body
-        const bodyParams = new URLSearchParams();
-        bodyParams.set("grant_type", "authorization_code");
-        bodyParams.set("code", code);
-        bodyParams.set("redirect_uri", redirectUri);
-
-        const basicAuth = btoa(`${clientId}:${clientSecret}`);
-
-        fetch(tokenEndpoint, {
-          method: "POST",
-          headers: {
-            Authorization: `Basic ${basicAuth}`,
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          body: bodyParams.toString(),
-        })
-          .then((r) => r.json())
-          .then((data) => {
-            console.log("Token response:", data);
-            if (data.access_token) {
-              document.body.innerHTML += `<p>Access Token: ${data.access_token}</p>`;
-              // For real usage, store or forward it to your extension code
-              // (e.g., via postMessage or by having the user copy/paste).
-            } else {
-              document.body.innerHTML += `<p>Error: ${JSON.stringify(
-                data
-              )}</p>`;
-            }
-          })
-          .catch((err) => {
-            document.body.innerHTML += `<p>Error exchanging token: ${err}</p>`;
-          });
-      }
+      // We let the extension's background.js handle the actual token exchange.
+      // This page only serves to display a basic message.
+      // The background script detects ?code=... in this URL,
+      // exchanges it for a token, and then closes the tab.
     </script>
   </body>
 </html>
